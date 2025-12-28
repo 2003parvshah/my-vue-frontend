@@ -15,7 +15,7 @@
                 </template>
                 <div v-if="loading" class="loading-indicator">Loading...</div>
             </div>
-            <ChatInputBox @send="sendMessage" />
+            <ChatInputBox @send="sendMessage" @upload="uploadFile" />
         </div>
         <CallModal :visible="showCall" :conversationId="conversationId" :recipientId="4" :onClose="closeCallModal" />
     </div>
@@ -126,6 +126,19 @@ const loadMessages = async () => {
         console.error('❌ Failed to load messages:', err)
     } finally {
         loading.value = false
+    }
+}
+const uploadFile = async (formData) => {
+    try {
+        const res = await axios.post(`/conversations/${conversationId.value}/messages`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        })
+
+        const msg = res.data.data
+        messages.value.unshift(msg)
+        await scrollToBottom()
+    } catch (err) {
+        console.error('❌ Upload failed:', err)
     }
 }
 

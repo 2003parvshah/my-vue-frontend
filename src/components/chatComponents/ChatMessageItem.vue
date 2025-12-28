@@ -2,7 +2,23 @@
     <div :class="['message-wrapper', isSent ? 'sent' : 'received']">
         <div class="message-bubble">
             <p class="sender-email">{{ message.sender.email }}</p>
-            <p class="message-text">{{ message.content }}</p>
+
+            <template v-if="message.type === 'text'">
+                <p class="message-text">{{ message.content }}</p>
+            </template>
+            <template v-else-if="message.type === 'image'">
+                <img :src="message.file_path" class="chat-image" />
+            </template>
+            <template v-else-if="message.type === 'audio'">
+                <audio controls :src="message.file_path" />
+            </template>
+            <template v-else-if="message.type === 'video'">
+                <video controls :src="message.file_path" class="chat-video" />
+            </template>
+            <template v-else>
+                <a :href="message.file_path" target="_blank">📁 Download file</a>
+            </template>
+
             <span class="timestamp">{{ formatDate(message.created_at) }}</span>
         </div>
     </div>
@@ -17,7 +33,7 @@ const props = defineProps({
 })
 
 const isSent = computed(() => props.message.sender_id === props.currentUserId)
-
+console.log('Message:', props.message);
 const formatDate = (date) =>
     new Date(date).toLocaleString('en-IN', {
         timeZone: 'Asia/Kolkata',
@@ -73,5 +89,11 @@ const formatDate = (date) =>
     color: #555;
     margin-top: 0.25rem;
     text-align: right;
+}
+
+.chat-image,
+.chat-video {
+    max-width: 100%;
+    border-radius: 0.5rem;
 }
 </style>
